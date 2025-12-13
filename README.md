@@ -20,21 +20,22 @@ MovieSniper Project의 일부를 구현했습니다.
 ## 📸 Screenshots (실행 화면)
 
 ### **1. 영화 목록 및 검색 (메인)**
-*전체 영화 목록 조회 및 조건별(제목, 감독 등) 검색 기능*
+* 전체 영화 목록 조회 및 조건별(제목, 감독 등) 검색 기능
+<br>
 <img src="README/main.png" width="800">
 <br>
 
-<br>
 
 ### **2. 영화 등록**
-*새로운 영화 정보 입력 및 DB 저장*
+* 새로운 영화 정보 입력 및 DB 저장
+<br>
 <img src="README/insert.png" width="800">
 <br>
 
-<br>
 
 ### **3. 영화 수정 및 삭제**
-*선택한 영화 정보 수정 및 삭제 처리*
+* 선택한 영화 정보 수정 및 삭제 처리
+<br>
 <img src="README/update.png" width="800">
 <br>
 
