@@ -50,19 +50,16 @@ MovieSniper Project의 일부를 구현했습니다.
 * **Controller**: View와 Model 사이를 중재하며, 모든 이벤트 처리를 총괄합니다.
 
 ### 2. UI 스타일 중앙 관리 (`UIConstants`) 
-* **[개선]**: 기존에는 각 화면마다 폰트와 색상을 개별적으로 지정했으나, **`util.UIConstants`** 클래스를 도입하여 **스타일(Font, Color)을 상수로 통합 관리**하였습니다.
-* **효과**: 테마 변경 시 한 곳만 수정하면 전체 앱에 반영되며, 코드 중복이 획기적으로 줄어들었습니다.
+* 기존에는 각 화면마다 폰트와 색상을 개별적으로 지정했으나, **`util.UIConstants`** 클래스를 도입하여 **스타일(Font, Color)을 상수로 통합 관리**하였습니다.
 
 ### 3. 공통 폼 패널의 재사용 (`MovieFormPanel`) 
-* **[개선]**: '등록 화면'과 '수정 화면'에서 영화 정보를 입력받는 UI가 동일함을 파악하고, 이를 **`MovieFormPanel`이라는 별도의 패널로 분리**하여 조립하는 방식을 택했습니다.
-* **효과**: 중복 코드를 제거하고, 유지보수가 용이해졌습니다.
+*'등록 화면'과 '수정 화면'에서 영화 정보를 입력받는 UI가 동일함을 파악하고, 이를 **`MovieFormPanel`이라는 별도의 패널로 분리**하여 조립하는 방식을 택했습니다.
 
 ### 4. JDBC 자원 해제 최적화 (`JDBC_Connector`) 🔌
-* **[개선]**: Repository의 모든 메소드마다 반복되던 `try-catch-close` 블록을 **`JDBC_Connector.close()` 정적 메소드**로 통합하였습니다.
-* **효과**: DAO 코드가 훨씬 간결해지고 가독성이 향상되었습니다.
+* Repository의 모든 메소드마다 반복되던 `try-catch-close` 블록을 **`JDBC_Connector.close()` 정적 메소드**로 통합하였습니다.
 
 ### 5. 유효성 검사 강화 (Validation) 
-* **[개선]**: 사용자 입력값의 누락, 숫자/날짜 형식 오류 등을 사전에 방지하기 위해 꼼꼼한 예외 처리를 적용하였습니다.
+* 사용자 입력값의 누락, 숫자/날짜 형식 오류 등을 사전에 방지하기 위해 꼼꼼한 예외 처리를 적용하였습니다.
 
 ---
 
@@ -72,7 +69,7 @@ MovieSniper Project의 일부를 구현했습니다.
 src
  ├─ 📂 movie
  │   ├─ 📂 controller
- │   │   └─ MovieController.java    // 프로그램의 메인 두뇌 (이벤트 처리)
+ │   │   └─ MovieController.java    // 프로그램의 메인 (이벤트 처리)
  │   ├─ 📂 domain
  │   │   └─ MovieVO.java            // 영화 데이터 객체 (Value Object)
  │   ├─ 📂 repository
