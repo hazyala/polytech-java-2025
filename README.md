@@ -19,21 +19,21 @@
 ## 📸 Screenshots (실행 화면)
 
 ### **1. 영화 목록 및 검색 (메인)**
-<img src="src/README/main.png" width="800">
+<img src="README/main.png" width="800">
 <br>
 *전체 영화 목록 조회 및 조건별(제목, 감독 등) 검색 기능*
 
 <br>
 
 ### **2. 영화 등록**
-<img src="src/README/insert.png" width="800">
+<img src="README/insert.png" width="800">
 <br>
 *새로운 영화 정보 입력 및 DB 저장*
 
 <br>
 
 ### **3. 영화 수정 및 삭제**
-<img src="src/README/update.png" width="800">
+<img src="README/update.png" width="800">
 <br>
 *선택한 영화 정보 수정 및 삭제 처리*
 
@@ -83,10 +83,9 @@ src
  │       ├─ MovieInsertView.java    // 탭2: 영화 등록
  │       ├─ MovieUpdateView.java    // 탭3: 수정 및 삭제
  │       └─ MovieFormPanel.java     // [공용] 영화 정보 입력 폼
- ├─ 📂 util
- │   ├─ CenterFrame.java            // 화면 중앙 배치 유틸
- │   └─ UIConstants.java            //  UI 스타일(폰트, 색상) 통합 관리
- └─ 📂 README                       // 실행 화면 이미지 저장소
+ └─ 📂 util
+    ├─ CenterFrame.java            // 화면 중앙 배치 유틸
+    └─ UIConstants.java            //  UI 스타일(폰트, 색상) 통합 관리
 ```
 
 ## 💾 Database Schema (데이터베이스 구조)
