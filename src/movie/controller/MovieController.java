@@ -17,7 +17,7 @@ import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 
 public class MovieController {
-    // 1. 필요한 부품들을 선언
+    // 1. Repository, View 선언
     MovieRepository repository;
     MovieMainFrame mainFrame;
     MovieInsertView insertView;
@@ -27,40 +27,51 @@ public class MovieController {
     ArrayList<MovieVO> list;
 
     public MovieController() {
-        // 2. 부품 조립
+        // 2. 객체 생성 및 뷰 연결
         repository = new MovieRepository();
         mainFrame = new MovieMainFrame();
 
-        // 메인 프레임에서 뷰들을 가져옴
         insertView = mainFrame.getInsertView();
         searchView = mainFrame.getSearchView();
         updateView = mainFrame.getUpdateView();
 
-        // 3. 초기 데이터 로드 (프로그램 켜자마자 목록 보여주기)
+        // 3. 초기 데이터 로드 (전체 목록 갱신)
         refreshAllViews();
 
-        // 4. 이벤트 연결 (버튼 누르면 동작하게 하기)
-        // [검색 탭] 검색 버튼
+        // 4. 이벤트 리스너 등록
+        eventRegister();
+    }
+
+    public void eventRegister() {
+        // 검색 탭
         searchView.getBtnSearch().addActionListener(btnSearchL);
-        // [검색 탭] 테이블 클릭 (포스터 로드)
         searchView.getTable().addMouseListener(tableSearchL);
 
-        // [등록 탭] 등록 버튼
+        // 등록 탭
         insertView.getBtnAdd().addActionListener(btnInsertL);
 
-        // [수정 탭] 수정/삭제 버튼
+        // 수정/삭제 탭
         updateView.getBtnUpdate().addActionListener(btnUpdateL);
         updateView.getBtnDelete().addActionListener(btnDeleteL);
-        // [수정 탭] 테이블 클릭 (입력창 채우기)
+        updateView.getBtnSearch().addActionListener(btnUpdateSearchL);
         updateView.getTable().addMouseListener(tableUpdateL);
 
-        // [탭 변경] 탭 바꿀 때마다 데이터 새로고침
+        // 탭 변경
         mainFrame.getTab().addChangeListener(tabL);
     }
 
-    // --- [리스너(Listener) 정의] ---
+    // 5. 공통 기능: 모든 뷰 데이터 새로고침
+    public void refreshAllViews() {
+        list = repository.select("", 0);
+        searchView.setMovieVOList(list);
+        updateView.setMovieVOList(list);
+    }
 
-    // 1. 검색 버튼 리스너
+    // ====================================
+    // 리스너 (Listener)
+    // ====================================
+
+    // 6. 검색 버튼 리스너
     ActionListener btnSearchL = new ActionListener() {
         @Override
         public void actionPerformed(ActionEvent e) {
@@ -71,84 +82,95 @@ public class MovieController {
         }
     };
 
-    // 2. 검색 탭 테이블 클릭 리스너
+    // 7. 검색 탭 테이블 클릭 리스너
     MouseAdapter tableSearchL = new MouseAdapter() {
         @Override
         public void mouseClicked(MouseEvent e) {
             int row = searchView.getTable().getSelectedRow();
-            // 현재 리스트에서 해당 행의 영화 정보를 가져옴
             MovieVO vo = list.get(row);
-            // 뷰에게 포스터 링크를 주며 그려달라고 요청
-            searchView.setPosterImage(vo.getPoster());
+            searchView.setDetailInfo(vo);
         }
     };
 
-    // 3. 영화 등록 버튼 리스너
+    // 8. 영화 등록 버튼 리스너
     ActionListener btnInsertL = new ActionListener() {
         @Override
         public void actionPerformed(ActionEvent e) {
             try {
                 MovieVO vo = insertView.neededInsertData();
                 repository.insert(vo);
-                JOptionPane.showMessageDialog(mainFrame, "영화가 성공적으로 등록되었습니다.");
-                insertView.initInsertData(); // 입력창 초기화
-                refreshAllViews(); // 목록 갱신
+                //* 아이콘 없이 깔끔한 메시지 출력 (PLAIN_MESSAGE 사용)
+                JOptionPane.showMessageDialog(mainFrame, "영화가 성공적으로 등록되었습니다.", "알림", JOptionPane.PLAIN_MESSAGE);
+                insertView.initInsertData();
+                refreshAllViews();
             } catch (Exception ex) {
-                JOptionPane.showMessageDialog(mainFrame, "입력 정보를 확인해주세요. (숫자/날짜 형식 등)");
+                //* 에러 아이콘 대신 텍스트만 출력
+                JOptionPane.showMessageDialog(mainFrame, ex.getMessage(), "입력 오류", JOptionPane.PLAIN_MESSAGE);
             }
         }
     };
 
-    // 4. 영화 수정 버튼 리스너
+    // 9. 영화 수정 버튼 리스너
     ActionListener btnUpdateL = new ActionListener() {
         @Override
         public void actionPerformed(ActionEvent e) {
             try {
                 MovieVO vo = updateView.neededUpdateData();
                 repository.update(vo);
-                JOptionPane.showMessageDialog(mainFrame, "영화 정보가 수정되었습니다.");
+                JOptionPane.showMessageDialog(mainFrame, "영화 정보가 수정되었습니다.", "알림", JOptionPane.PLAIN_MESSAGE);
                 refreshAllViews();
             } catch (Exception ex) {
-                JOptionPane.showMessageDialog(mainFrame, "수정 실패. 입력값을 확인하세요.");
+                JOptionPane.showMessageDialog(mainFrame, ex.getMessage(), "수정 오류", JOptionPane.PLAIN_MESSAGE);
             }
         }
     };
 
-    // 5. 영화 삭제 버튼 리스너
+    // 10. 영화 삭제 버튼 리스너
     ActionListener btnDeleteL = new ActionListener() {
         @Override
         public void actionPerformed(ActionEvent e) {
             int row = updateView.getTable().getSelectedRow();
             if (row == -1) {
-                JOptionPane.showMessageDialog(mainFrame, "삭제할 영화를 선택해주세요.");
+                JOptionPane.showMessageDialog(mainFrame, "삭제할 영화를 선택해주세요.", "알림", JOptionPane.PLAIN_MESSAGE);
                 return;
             }
 
-            int answer = JOptionPane.showConfirmDialog(mainFrame, "정말로 삭제하시겠습니까?", "삭제 확인", JOptionPane.YES_NO_OPTION);
+            int answer = JOptionPane.showConfirmDialog(mainFrame, "정말로 삭제하시겠습니까?", "삭제 확인", JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE);
             if (answer == JOptionPane.YES_OPTION) {
-                // 현재 입력창에 있는 ID를 기준으로 삭제 (테이블 클릭 시 채워짐)
                 try {
                     MovieVO vo = updateView.neededUpdateData();
                     repository.delete(vo.getMovieId());
                     refreshAllViews();
-                    // 수정 뷰 입력창 초기화는 선택사항
+                    JOptionPane.showMessageDialog(mainFrame, "삭제되었습니다.", "알림", JOptionPane.PLAIN_MESSAGE);
                 } catch (Exception ex) {
-                    JOptionPane.showMessageDialog(mainFrame, "삭제 중 오류가 발생했습니다.");
+                    JOptionPane.showMessageDialog(mainFrame, "삭제 중 오류가 발생했습니다.", "오류", JOptionPane.PLAIN_MESSAGE);
                 }
             }
         }
     };
 
-    // 6. 수정 탭 테이블 클릭 리스너 (클릭하면 입력창에 정보 쏙!)
+    // 11. 수정 탭 검색 버튼 리스너
+    ActionListener btnUpdateSearchL = new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            String word = updateView.getSearchWord();
+            int index = updateView.getSelectedIndex();
+            list = repository.select(word, index);
+            updateView.setMovieVOList(list);
+        }
+    };
+
+    // 12. 수정 탭 테이블 클릭 리스너
     MouseAdapter tableUpdateL = new MouseAdapter() {
         @Override
         public void mouseClicked(MouseEvent e) {
             int row = updateView.getTable().getSelectedRow();
-            updateView.setFieldsFromRow(row);
+            MovieVO vo = list.get(row);
+            updateView.setFieldsFromRow(vo);
         }
     };
 
-    // 7. 탭 변경 리스너 (탭 누를 때마다 최신 목록 불러오기)
+    // 13. 탭 변경 리스너
     ChangeListener tabL = new ChangeListener() {
         @Override
         public void stateChanged(ChangeEvent e) {
@@ -156,15 +178,9 @@ public class MovieController {
         }
     };
 
-    // [공통 기능] 모든 뷰의 데이터를 최신으로 갱신
-    public void refreshAllViews() {
-        list = repository.select("", 0); // 전체 목록 조회
-        searchView.setMovieVOList(list); // 검색 탭 갱신
-        updateView.setMovieVOList(list); // 수정 탭 갱신
-        // 등록 탭은 목록 테이블이 없으므로 생략
-    }
-
-    // ★ 프로그램 시작점 ★
+    // ====================================
+    // 프로그램 실행
+    // ====================================
     public static void main(String[] args) {
         new MovieController();
     }

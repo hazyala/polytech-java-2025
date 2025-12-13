@@ -1,6 +1,6 @@
 package movie.view;
 
-import center_frame.CenterFrame;
+import util.CenterFrame;
 import javax.swing.*;
 
 public class MovieMainFrame extends JFrame {
@@ -13,7 +13,7 @@ public class MovieMainFrame extends JFrame {
     MovieUpdateView updateView = new MovieUpdateView();
 
     public MovieMainFrame() {
-        setTitle("무비 스나이퍼 (관리자 모드)");
+        setTitle("무비 스나이퍼 - 상영 영화 관리");
 
         // 탭 추가
         tab.add("영화 목록/검색", searchView);

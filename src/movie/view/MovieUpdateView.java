@@ -1,142 +1,152 @@
 package movie.view;
 
 import movie.domain.MovieVO;
+import util.UIConstants;
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.sql.Date;
 import java.util.ArrayList;
 
 public class MovieUpdateView extends JPanel {
-    JTable table;
-    DefaultTableModel model;
-    ArrayList<MovieVO> movieVOList;
-    String[] header = {"번호", "제목", "장르", "감독", "등급"}; // 간단히 표시
+    // 1. 주요 컴포넌트 선언
+    private JTable table;
+    private DefaultTableModel model;
 
-    // 수정 입력 필드
-    JTextField tfId, tfTitle, tfGenre, tfRuntime, tfReleaseDate, tfPoster, tfDirector, tfCast, tfEndDate, tfSynopsis;
-    JComboBox<String> comboGrade;
-    String[] grades = {"전체관람가", "12세관람가", "15세관람가", "청소년관람불가"};
+    // 검색 컴포넌트
+    private JComboBox<String> comboSearch;
+    private JTextField tfSearch;
+    private JButton btnSearch;
+    private String[] searchItems = {"번호", "제목", "장르", "감독"};
 
-    JButton btnUpdate, btnDelete;
+    // 수정 폼 패널
+    private MovieFormPanel formPanel;
+
+    // 기능 버튼
+    private JButton btnUpdate, btnDelete;
 
     public MovieUpdateView() {
-        setLayout(new BorderLayout());
+        initUI();
+    }
 
-        // 1. 중앙 테이블
+    private void initUI() {
+        setLayout(new BorderLayout());
+        setBackground(UIConstants.COLOR_WHITE);
+
+        // 2. 상단 검색 패널 구성
+        JPanel northPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
+        northPanel.setBackground(UIConstants.COLOR_WHITE);
+        northPanel.setBorder(new EmptyBorder(10, 0, 10, 0));
+
+        comboSearch = new JComboBox<>(searchItems);
+        comboSearch.setBackground(UIConstants.COLOR_WHITE);
+        comboSearch.setFont(UIConstants.FONT_INPUT);
+
+        tfSearch = new JTextField(20);
+        tfSearch.setFont(UIConstants.FONT_INPUT);
+
+        btnSearch = new JButton("검색");
+        btnSearch.setBackground(UIConstants.COLOR_BTN_GRAY);
+        btnSearch.setFont(UIConstants.FONT_BTN);
+        btnSearch.setFocusPainted(false);
+
+        JLabel lblSearch = new JLabel("수정할 영화 검색 : ");
+        lblSearch.setFont(UIConstants.FONT_LABEL);
+
+        northPanel.add(lblSearch);
+        northPanel.add(comboSearch);
+        northPanel.add(tfSearch);
+        northPanel.add(btnSearch);
+
+        add(northPanel, BorderLayout.NORTH);
+
+        // 3. 중앙 테이블 구성
+        String[] header = {"번호", "제목", "장르", "감독", "출연", "등급", "시간", "개봉일", "종료일"};
         model = new DefaultTableModel(header, 0) {
             @Override
             public boolean isCellEditable(int row, int column) { return false; }
         };
         table = new JTable(model);
+
+        UIConstants.setTableStyle(table);
+        UIConstants.setColumnStyle(table, 0, 40, "center");  // 번호
+        UIConstants.setColumnStyle(table, 1, 150, "left");   // 제목
+        UIConstants.setColumnStyle(table, 2, 70, "center");  // 장르
+        UIConstants.setColumnStyle(table, 3, 80, "center");  // 감독
+        UIConstants.setColumnStyle(table, 4, 120, "left");   // 출연
+        UIConstants.setColumnStyle(table, 5, 80, "center");  // 등급
+        UIConstants.setColumnStyle(table, 6, 50, "center");  // 시간
+        UIConstants.setColumnStyle(table, 7, 90, "center");  // 개봉일
+        UIConstants.setColumnStyle(table, 8, 90, "center");  // 종료일
+
         JScrollPane scrollPane = new JScrollPane(table);
+        scrollPane.getViewport().setBackground(UIConstants.COLOR_WHITE);
+        scrollPane.setPreferredSize(new Dimension(0, 300)); // 테이블 높이 고정
         add(scrollPane, BorderLayout.CENTER);
 
-        // 2. 하단 수정 패널 (입력창 + 버튼)
-        JPanel southPanel = new JPanel(new BorderLayout());
-        JPanel inputPanel = new JPanel(new GridLayout(6, 4)); // 입력창들
+        // 4. 하단 수정 폼 및 버튼 패널
+        JPanel southContainer = new JPanel(new BorderLayout());
+        southContainer.setBackground(UIConstants.COLOR_WHITE);
 
-        inputPanel.add(new JLabel("번호(수정불가):"));
-        tfId = new JTextField(); tfId.setEditable(false);
-        inputPanel.add(tfId);
+        // 4-1. 공통 폼 패널 조립
+        formPanel = new MovieFormPanel();
+        southContainer.add(formPanel, BorderLayout.CENTER);
 
-        inputPanel.add(new JLabel("제목:"));
-        tfTitle = new JTextField();
-        inputPanel.add(tfTitle);
-
-        inputPanel.add(new JLabel("장르:"));
-        tfGenre = new JTextField();
-        inputPanel.add(tfGenre);
-
-        inputPanel.add(new JLabel("감독:"));
-        tfDirector = new JTextField();
-        inputPanel.add(tfDirector);
-
-        inputPanel.add(new JLabel("등급:"));
-        comboGrade = new JComboBox<>(grades);
-        inputPanel.add(comboGrade);
-
-        inputPanel.add(new JLabel("시간(분):"));
-        tfRuntime = new JTextField();
-        inputPanel.add(tfRuntime);
-
-        inputPanel.add(new JLabel("개봉일:"));
-        tfReleaseDate = new JTextField();
-        inputPanel.add(tfReleaseDate);
-
-        inputPanel.add(new JLabel("종료일:"));
-        tfEndDate = new JTextField();
-        inputPanel.add(tfEndDate);
-
-        inputPanel.add(new JLabel("출연:"));
-        tfCast = new JTextField();
-        inputPanel.add(tfCast);
-
-        inputPanel.add(new JLabel("포스터URL:"));
-        tfPoster = new JTextField();
-        inputPanel.add(tfPoster);
-
-        inputPanel.add(new JLabel("줄거리:"));
-        tfSynopsis = new JTextField();
-        inputPanel.add(tfSynopsis);
-
-        southPanel.add(inputPanel, BorderLayout.CENTER);
-
-        // 버튼
+        // 4-2. 버튼 패널
         JPanel btnPanel = new JPanel();
-        btnUpdate = new JButton("정보 수정");
-        btnDelete = new JButton("영화 삭제");
+        btnPanel.setBackground(UIConstants.COLOR_WHITE);
+        btnPanel.setBorder(new EmptyBorder(10, 0, 20, 0));
+
+        btnUpdate = createStyledButton("정보 수정", UIConstants.COLOR_BTN_BLUE);
+        btnDelete = createStyledButton("영화 삭제", UIConstants.COLOR_BTN_RED);
+
         btnPanel.add(btnUpdate);
         btnPanel.add(btnDelete);
-        southPanel.add(btnPanel, BorderLayout.SOUTH);
+        southContainer.add(btnPanel, BorderLayout.SOUTH);
 
-        add(southPanel, BorderLayout.SOUTH);
+        add(southContainer, BorderLayout.SOUTH);
     }
 
+    // 버튼 스타일링 메소드
+    private JButton createStyledButton(String text, Color bgColor) {
+        JButton btn = new JButton(text);
+        btn.setFont(UIConstants.FONT_BTN);
+        btn.setBackground(bgColor);
+        btn.setForeground(UIConstants.COLOR_WHITE);
+        btn.setPreferredSize(new Dimension(120, 40));
+        btn.setFocusPainted(false);
+        return btn;
+    }
+
+    // 5. 테이블 데이터 갱신
     public void setMovieVOList(ArrayList<MovieVO> list) {
-        this.movieVOList = list;
         model.setRowCount(0);
         for (MovieVO vo : list) {
-            Object[] row = { vo.getMovieId(), vo.getTitle(), vo.getGenre(), vo.getDirector(), vo.getGrade() };
+            Object[] row = {
+                    vo.getMovieId(), vo.getTitle(), vo.getGenre(),
+                    vo.getDirector(), vo.getCast(), vo.getGrade(),
+                    vo.getRuntime(), vo.getReleaseDate(), vo.getEndDate()
+            };
             model.addRow(row);
         }
     }
 
-    // 테이블 선택 시 입력창 채우기
-    public void setFieldsFromRow(int rowIndex) {
-        MovieVO vo = movieVOList.get(rowIndex);
-        tfId.setText(String.valueOf(vo.getMovieId()));
-        tfTitle.setText(vo.getTitle());
-        tfGenre.setText(vo.getGenre());
-        tfDirector.setText(vo.getDirector());
-        comboGrade.setSelectedItem(vo.getGrade());
-        tfRuntime.setText(String.valueOf(vo.getRuntime()));
-        tfReleaseDate.setText(String.valueOf(vo.getReleaseDate()));
-        tfEndDate.setText(String.valueOf(vo.getEndDate()));
-        tfCast.setText(vo.getCast());
-        tfPoster.setText(vo.getPoster());
-        tfSynopsis.setText(vo.getSynopsis());
+    // 6. 선택된 행의 데이터를 폼 패널에 전달
+    public void setFieldsFromRow(MovieVO vo) {
+        formPanel.setMovieVO(vo);
     }
 
-    // 수정 데이터 가져오기
-    public MovieVO neededUpdateData() {
-        MovieVO vo = new MovieVO();
-        vo.setMovieId(Integer.parseInt(tfId.getText()));
-        vo.setTitle(tfTitle.getText());
-        vo.setGenre(tfGenre.getText());
-        vo.setDirector(tfDirector.getText());
-        vo.setGrade((String)comboGrade.getSelectedItem());
-        vo.setRuntime(Integer.parseInt(tfRuntime.getText()));
-        vo.setReleaseDate(Date.valueOf(tfReleaseDate.getText()));
-        vo.setEndDate(Date.valueOf(tfEndDate.getText()));
-        vo.setCast(tfCast.getText());
-        vo.setPoster(tfPoster.getText());
-        vo.setSynopsis(tfSynopsis.getText());
-        return vo;
+    // 7. 수정할 데이터 반환 (Controller 사용)
+    public MovieVO neededUpdateData() throws Exception {
+        return formPanel.getMovieVO();
     }
 
+    // Getter Methods
     public JTable getTable() { return table; }
     public JButton getBtnUpdate() { return btnUpdate; }
     public JButton getBtnDelete() { return btnDelete; }
+    public JButton getBtnSearch() { return btnSearch; }
+    public String getSearchWord() { return tfSearch.getText(); }
+    public int getSelectedIndex() { return comboSearch.getSelectedIndex(); }
 }

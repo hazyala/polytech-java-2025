@@ -1,112 +1,66 @@
 package movie.view;
 
 import movie.domain.MovieVO;
+import util.UIConstants;
 
 import javax.swing.*;
-import javax.swing.table.DefaultTableModel;
+import javax.swing.border.EmptyBorder;
 import java.awt.*;
-import java.sql.Date;
-import java.util.ArrayList;
 
 public class MovieInsertView extends JPanel {
-    // 입력 필드들
-    JTextField tfTitle, tfGenre, tfRuntime, tfReleaseDate, tfPoster, tfDirector, tfCast, tfEndDate, tfSynopsis;
-    JComboBox<String> comboGrade;
+    // 1. 주요 컴포넌트 선언
+    MovieFormPanel formPanel;
     JButton btnAdd;
 
-    // 등급 목록
-    String[] grades = {"전체관람가", "12세관람가", "15세관람가", "청소년관람불가"};
-
     public MovieInsertView() {
+        initUI();
+    }
+
+    //* 생성자 코드를 분리하여 화면 초기화 로직을 별도로 관리하도록 하였습니다.
+    private void initUI() {
         setLayout(new BorderLayout());
+        setBackground(UIConstants.COLOR_WHITE);
 
-        // 중앙 입력 패널 (GridLayout 사용)
-        JPanel centerPanel = new JPanel(new GridLayout(10, 2, 5, 5)); // 10행 2열
+        // 2. 상단 제목 패널 구성
+        JPanel titlePanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        titlePanel.setBackground(UIConstants.COLOR_WHITE);
+        titlePanel.setBorder(new EmptyBorder(20, 0, 20, 0));
 
-        // 컴포넌트 초기화 및 패널 추가
-        centerPanel.add(new JLabel("영화 제목:"));
-        tfTitle = new JTextField();
-        centerPanel.add(tfTitle);
+        JLabel lblHeader = new JLabel("영화 등록");
+        lblHeader.setFont(UIConstants.FONT_TITLE); //* UIConstants 폰트 적용
+        titlePanel.add(lblHeader);
+        add(titlePanel, BorderLayout.NORTH);
 
-        centerPanel.add(new JLabel("장르:"));
-        tfGenre = new JTextField();
-        centerPanel.add(tfGenre);
+        // 3. 중앙 폼 패널 (공통 부품 조립)
+        //* MovieFormPanel을 재사용하여 등록 화면을 구성하였습니다.
+        formPanel = new MovieFormPanel();
+        add(formPanel, BorderLayout.CENTER);
 
-        centerPanel.add(new JLabel("러닝타임(분):"));
-        tfRuntime = new JTextField();
-        centerPanel.add(tfRuntime);
-
-        centerPanel.add(new JLabel("관람 등급:"));
-        comboGrade = new JComboBox<>(grades);
-        centerPanel.add(comboGrade);
-
-        centerPanel.add(new JLabel("개봉일(YYYY-MM-DD):"));
-        tfReleaseDate = new JTextField();
-        centerPanel.add(tfReleaseDate);
-
-        centerPanel.add(new JLabel("포스터(URL):"));
-        tfPoster = new JTextField();
-        centerPanel.add(tfPoster);
-
-        centerPanel.add(new JLabel("감독:"));
-        tfDirector = new JTextField();
-        centerPanel.add(tfDirector);
-
-        centerPanel.add(new JLabel("출연진:"));
-        tfCast = new JTextField();
-        centerPanel.add(tfCast);
-
-        centerPanel.add(new JLabel("종료일(YYYY-MM-DD):"));
-        tfEndDate = new JTextField();
-        centerPanel.add(tfEndDate);
-
-        centerPanel.add(new JLabel("줄거리:"));
-        tfSynopsis = new JTextField();
-        centerPanel.add(tfSynopsis);
-
-        add(centerPanel, BorderLayout.CENTER);
-
-        // 하단 버튼 패널
+        // 4. 하단 버튼 패널 구성
         JPanel southPanel = new JPanel();
+        southPanel.setBackground(UIConstants.COLOR_WHITE);
+        southPanel.setBorder(new EmptyBorder(20, 0, 20, 0));
+
         btnAdd = new JButton("영화 등록");
+        btnAdd.setFont(UIConstants.FONT_BTN);           //* UIConstants 폰트 적용
+        btnAdd.setBackground(UIConstants.COLOR_BTN_BLUE); //* UIConstants 색상 적용
+        btnAdd.setForeground(UIConstants.COLOR_WHITE);
+        btnAdd.setPreferredSize(new Dimension(200, 50));
+        btnAdd.setFocusPainted(false);
+
         southPanel.add(btnAdd);
         add(southPanel, BorderLayout.SOUTH);
     }
 
-    // 입력된 정보로 MovieVO 객체 생성 (Controller에서 호출)
-    public MovieVO neededInsertData() {
-        MovieVO vo = new MovieVO();
-        vo.setTitle(tfTitle.getText());
-        vo.setGenre(tfGenre.getText());
-        // 숫자로 변환 (예외처리 생략 - 숫자만 입력해야 함)
-        vo.setRuntime(Integer.parseInt(tfRuntime.getText()));
-        vo.setGrade((String) comboGrade.getSelectedItem());
-        // 날짜 변환 (YYYY-MM-DD 형식을 지켜야 함)
-        vo.setReleaseDate(Date.valueOf(tfReleaseDate.getText()));
-        vo.setPoster(tfPoster.getText());
-        vo.setDirector(tfDirector.getText());
-        vo.setCast(tfCast.getText());
-        vo.setEndDate(Date.valueOf(tfEndDate.getText()));
-        vo.setSynopsis(tfSynopsis.getText());
-
-        return vo;
+    // 5. 입력 데이터 반환 (Controller 사용)
+    public MovieVO neededInsertData() throws Exception {
+        return formPanel.getMovieVO();
     }
 
-    // 입력창 초기화
+    // 6. 입력창 초기화
     public void initInsertData() {
-        tfTitle.setText("");
-        tfGenre.setText("");
-        tfRuntime.setText("");
-        comboGrade.setSelectedIndex(0);
-        tfReleaseDate.setText("");
-        tfPoster.setText("");
-        tfDirector.setText("");
-        tfCast.setText("");
-        tfEndDate.setText("");
-        tfSynopsis.setText("");
+        formPanel.clearFields();
     }
 
-    public JButton getBtnAdd() {
-        return btnAdd;
-    }
+    public JButton getBtnAdd() { return btnAdd; }
 }

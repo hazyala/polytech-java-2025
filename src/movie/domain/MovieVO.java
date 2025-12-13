@@ -37,7 +37,7 @@ public class MovieVO {
         this.synopsis = synopsis;
     }
 
-    // 4. Getter & Setter
+    // 4. Getter & Setter 메소드
     public int getMovieId() { return movieId; }
     public void setMovieId(int movieId) { this.movieId = movieId; }
 
@@ -70,10 +70,4 @@ public class MovieVO {
 
     public String getSynopsis() { return synopsis; }
     public void setSynopsis(String synopsis) { this.synopsis = synopsis; }
-
-    // 디버깅용
-    @Override
-    public String toString() {
-        return "MovieVO [제목=" + title + ", 장르=" + genre + "]";
-    }
 }
