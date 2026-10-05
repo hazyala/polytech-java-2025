@@ -1,95 +1,34 @@
-# 🎬 Movie Sniper (무비 스나이퍼)
+# Movie Sniper — 영화 관리 GUI
 
-> **Java Swing & Oracle DB 기반의 영화 정보 관리 시스템 (Administrator Mode)**
+Java Swing 화면에서 Oracle DB의 영화 정보를 검색·등록·수정·삭제하는 관리자 프로그램.
 
-이 프로젝트는 대학 수업 과정에서 학습한 내용을 바탕으로, **MVC 패턴**과 **JDBC 연동**을 활용하여 제작한 영화 관리 프로그램입니다.
-MovieSniper Project의 일부를 구현했습니다.
-기본적인 **CRUD(등록, 조회, 수정, 삭제)** 기능뿐만 아니라, **코드의 재사용성**과 **유지보수성**을 높이기 위해 다양한 리팩토링 기법을 적용하여 심화 학습하였습니다.
+수업에서 배운 MVC와 JDBC를 바탕으로 MovieSniper 프로젝트의 일부를 구현했다. 기존 기록에서 강조한 공통 폼·UI 상수·JDBC 자원 정리를 실제 클래스와 함께 소개한다.
 
----
+![영화 목록과 검색](README/main.png)
 
-## 🛠 Tech Stack (사용 기술)
-- **Language**: Java (JDK 17)
-- **GUI**: Java Swing (JFrame, JPanel, JTable 등)
-- **Database**: Oracle Database
-- **Library**: ojdbc8 / ojdbc17
-- **IDE**: IntelliJ IDEA
+## 화면과 클래스
 
----
+- `MovieController`가 검색·행 선택·등록·수정·삭제·탭 변경 listener를 연결한다.
+- `MovieMainFrame`이 검색, 등록, 수정 탭을 구성한다.
+- 등록과 수정은 `MovieFormPanel`을 공유한다. 필수 입력·정수·YYYY-MM-DD 날짜를 검사해 MovieVO를 만든다.
+- `MovieRepository`는 검색 대상 컬럼 배열과 PreparedStatement로 조건 검색하고 CRUD를 처리한다.
+- `UIConstants`에 글꼴·색상, `JDBC_Connector.close`에 ResultSet·PreparedStatement·Connection 해제를 모았다.
 
-## 📸 Screenshots (실행 화면)
+![등록 화면](README/insert.png)
+![수정 화면](README/update.png)
 
-### **1. 영화 목록 및 검색 (메인)**
-* 전체 영화 목록 조회 및 조건별(제목, 감독 등) 검색 기능
-<br>
-<img src="README/main.png" width="800">
-<br>
+## 실행 조건
 
+기존 개발 기록의 JDK 17·IntelliJ IDEA를 기준으로 프로젝트를 연다. Swing, `java.sql`, Oracle driver를 사용하며 의존성을 받는 Maven/Gradle 파일은 없다.
 
-### **2. 영화 등록**
-* 새로운 영화 정보 입력 및 DB 저장
-<br>
-<img src="README/insert.png" width="800">
-<br>
+1. `src`를 source root로 지정하고 Oracle JDBC driver를 IDE classpath에 추가한다. `.idea`의 driver library 경로는 원래 개발 PC 경로이므로 파일 포함 여부를 확인한다.
+2. `movie/repository/JDBC_Connector.java`의 Oracle XE URL(`localhost:1521/xe`)과 계정 설정에 맞는 DB를 준비한다. 코드 상수이며 환경변수로 읽지 않는다.
+3. 아래 테이블·sequence를 준비한다. schema는 기존 README에서 보존했고 repository의 컬럼·sequence 사용과 대조했다.
+4. `movie.controller.MovieController.main`을 실행한다.
 
+DB 연결 실패는 null connection으로 이어질 수 있다. 통합 테스트·DB 초기화 자동화는 없으므로 UI가 표시되는 것과 CRUD 성공을 별도로 확인한다. SQL 오류를 Repository가 출력하는 경로도 있어 UI 완료 메시지만으로 DB 성공을 판정하지 않는다.
 
-### **3. 영화 수정 및 삭제**
-* 선택한 영화 정보 수정 및 삭제 처리
-<br>
-<img src="README/update.png" width="800">
-<br>
-
----
-
-## 💡 Key Features & Improvements (주요 기능 및 개선사항)
-
-수업 시간에 배운 내용을 기반으로 하되, **코드의 효율성과 가독성**을 높이기 위해 다음과 같은 부분들을 심화 학습하여 적용하였습니다.
-
-### 1. MVC 패턴 구조화
-* **Model (VO, DAO)**: 데이터베이스 접근과 데이터 객체를 명확히 분리하였습니다.
-* **View**: 사용자 인터페이스(UI)를 담당하며, 로직을 포함하지 않도록 설계하였습니다.
-* **Controller**: View와 Model 사이를 중재하며, 모든 이벤트 처리를 총괄합니다.
-
-### 2. UI 스타일 중앙 관리 (`UIConstants`) 
-* 기존에는 각 화면마다 폰트와 색상을 개별적으로 지정했으나, **`util.UIConstants`** 클래스를 도입하여 **스타일(Font, Color)을 상수로 통합 관리**하였습니다.
-
-### 3. 공통 폼 패널의 재사용 (`MovieFormPanel`) 
-* '등록 화면'과 '수정 화면'에서 영화 정보를 입력받는 UI가 동일함을 파악하고, 이를 **`MovieFormPanel`이라는 별도의 패널로 분리**하여 조립하는 방식을 택했습니다.
-
-### 4. JDBC 자원 해제 최적화 (`JDBC_Connector`) 🔌
-* Repository의 모든 메소드마다 반복되던 `try-catch-close` 블록을 **`JDBC_Connector.close()` 정적 메소드**로 통합하였습니다.
-
-### 5. 유효성 검사 강화 (Validation) 
-* 사용자 입력값의 누락, 숫자/날짜 형식 오류 등을 사전에 방지하기 위해 꼼꼼한 예외 처리를 적용하였습니다.
-
----
-
-## 📂 Project Structure (폴더 구조)
-
-```text
-src
- ├─ 📂 movie
- │   ├─ 📂 controller
- │   │   └─ MovieController.java    // 프로그램의 메인 (이벤트 처리)
- │   ├─ 📂 domain
- │   │   └─ MovieVO.java            // 영화 데이터 객체 (Value Object)
- │   ├─ 📂 repository
- │   │   ├─ JDBC_Connector.java     // DB 연결 및 자원 해제 공통 모듈
- │   │   └─ MovieRepository.java    // DB CRUD 수행 (DAO)
- │   └─ 📂 view
- │       ├─ MovieMainFrame.java     // 메인 프레임 (탭 구성)
- │       ├─ MovieSearchView.java    // 탭1: 목록 조회 및 검색
- │       ├─ MovieInsertView.java    // 탭2: 영화 등록
- │       ├─ MovieUpdateView.java    // 탭3: 수정 및 삭제
- │       └─ MovieFormPanel.java     // [공용] 영화 정보 입력 폼
- └─ 📂 util
-    ├─ CenterFrame.java            // 화면 중앙 배치 유틸
-    └─ UIConstants.java            //  UI 스타일(폰트, 색상) 통합 관리
-```
-
-## 💾 Database Schema (데이터베이스 구조)
-
-**[Table: MOVIE]**
+## Oracle schema
 
 ```sql
 -- Movie 영화 테이블
@@ -112,3 +51,7 @@ CREATE TABLE Movie (
     CONSTRAINT pk_movie PRIMARY KEY (movie_id)
 );
 ```
+
+## 소스 위치
+
+`src/movie/controller`, `domain`, `repository`, `view`는 각각 이벤트·데이터 객체·쿼리·화면을 맡고 `src/util`은 화면 공통 설정이다. View의 공통 폼에도 입력 검증 로직이 있으므로 모든 로직이 Controller에만 있는 구조로 설명하지 않는다.
