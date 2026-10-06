@@ -2,7 +2,7 @@
 
 Java Swing 화면에서 Oracle DB의 영화 정보를 검색·등록·수정·삭제하는 관리자 프로그램.
 
-수업에서 배운 MVC와 JDBC를 바탕으로 MovieSniper 프로젝트의 일부를 구현했다. 기존 기록에서 강조한 공통 폼·UI 상수·JDBC 자원 정리를 실제 클래스와 함께 소개한다.
+수업에서 배운 MVC와 JDBC를 바탕으로 MovieSniper 프로젝트의 일부를 구현했다. 등록·수정 화면의 입력 폼을 공유하고 UI 상수와 JDBC 자원 해제를 별도 클래스로 모았다.
 
 ![영화 목록과 검색](README/main.png)
 
@@ -23,7 +23,7 @@ Java Swing 화면에서 Oracle DB의 영화 정보를 검색·등록·수정·�
 
 1. `src`를 source root로 지정하고 Oracle JDBC driver를 IDE classpath에 추가한다. `.idea`의 driver library 경로는 원래 개발 PC 경로이므로 파일 포함 여부를 확인한다.
 2. `movie/repository/JDBC_Connector.java`의 Oracle XE URL(`localhost:1521/xe`)과 계정 설정에 맞는 DB를 준비한다. 코드 상수이며 환경변수로 읽지 않는다.
-3. 아래 테이블·sequence를 준비한다. schema는 기존 README에서 보존했고 repository의 컬럼·sequence 사용과 대조했다.
+3. 아래 테이블·sequence를 준비한다. `MovieRepository`는 아래 컬럼과 `seq_movie_id`를 사용한다.
 4. `movie.controller.MovieController.main`을 실행한다.
 
 DB 연결 실패는 null connection으로 이어질 수 있다. 통합 테스트·DB 초기화 자동화는 없으므로 UI가 표시되는 것과 CRUD 성공을 별도로 확인한다. SQL 오류를 Repository가 출력하는 경로도 있어 UI 완료 메시지만으로 DB 성공을 판정하지 않는다.
@@ -44,14 +44,14 @@ CREATE TABLE Movie (
     grade         VARCHAR2(20)    NOT NULL,   -- 관람 등급
     release_date  DATE            NOT NULL,   -- 개봉일
     poster        VARCHAR2(500),              -- 포스터 이미지 URL
-    director      VARCHAR2(100),              -- 감독 이름 
+    director      VARCHAR2(100),              -- 감독 이름
     cast          VARCHAR2(500),              -- 출연 배우
-    end_date      DATE,                       -- 상영 종료일 
-    synopsis      CLOB,                       -- 줄거리 
+    end_date      DATE,                       -- 상영 종료일
+    synopsis      CLOB,                       -- 줄거리
     CONSTRAINT pk_movie PRIMARY KEY (movie_id)
 );
 ```
 
 ## 소스 위치
 
-`src/movie/controller`, `domain`, `repository`, `view`는 각각 이벤트·데이터 객체·쿼리·화면을 맡고 `src/util`은 화면 공통 설정이다. View의 공통 폼에도 입력 검증 로직이 있으므로 모든 로직이 Controller에만 있는 구조로 설명하지 않는다.
+`src/movie/controller`, `domain`, `repository`, `view`는 각각 이벤트·데이터 객체·쿼리·화면을 맡고 `src/util`은 화면 공통 설정이다. 입력 검증은 View의 공통 폼에서, SQL 실행은 Repository에서 처리한다.

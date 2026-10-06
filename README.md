@@ -15,8 +15,8 @@
 | `JavaTermProject/` | 영화 관리 GUI, 화면 이미지, DB schema 설명 |
 | `Java_Project1/` | Java 기초 수업 코드 |
 | `Java_Project2/` | 배열·메서드·파일·Swing, JDBC 고객/도서 관리 실습 |
-| `Vending_Machine/` | 자판기 예제 |
+| [Vending_Machine](Vending_Machine/README.md) | 투입 금액·잔돈·재고를 관리하는 자판기와 장바구니형 반려용품 키오스크 |
 
 각 폴더는 독립 프로젝트다. 루트에 공통 Gradle/Maven 빌드가 없다. IDE에서 사용할 프로젝트를 열고 `src/`를 source root로 지정한다. JDBC 예제에는 Oracle DB와 ojdbc driver 설정이 필요하다. 상세 조건은 Movie Sniper README를 확인한다.
 
-수업·과제 저장소이므로 전체를 하나의 서비스나 직접 설계한 제품으로 소개하지 않는다. 기존 MovieSniper의 일부 구현이라는 설명과 클래스별 리팩터링 기록을 유지한다. API 서버·배포·자동 테스트가 있는 프로젝트는 아니다.
+Movie Sniper는 수업 프로젝트의 일부 구현이며 공통 입력 폼·화면 상수·JDBC 자원 정리 작업이 포함되어 있다. 자판기·키오스크와 날짜별 예제는 별도로 실행한다.
